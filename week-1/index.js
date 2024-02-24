@@ -1,56 +1,53 @@
 const colors = {
-    bg: "#3B3B3B",
+    bg: "#0F0F0F",
+    graph: "#232D3F",
     white: "#F7F7F7",
     green: "#00BF00",
     red: "#DF1C34"
 }
 
-const numOfGraphs = 4
+const configs = {
+    numOfGraphs: 4,
+    isStopped: false,
+    selectedGraph: 0,
+    interval: undefined,
+    intervalTime: 250
+}
 
+const graphContainers = {}
 const canvases = []
 const ctxs = []
-
-const graphs = Array.apply(null, Array(numOfGraphs)).map(() => [])
-// const intervals = Array.apply(null, Array(numOfGraphs)).map(() => undefined)
-var intervals = []
-
-var isStopped = false
-var step = 0
-var interval
-const intervalTime = 250
+const graphs = Array.apply(null, Array(configs.numOfGraphs)).map(() => [])
 
 const performance = {}
 
 function setup(){
-    console.error("-- Setup --")
-    const stepButton = document.getElementById("step");
-    stepButton.onclick = draw
+    document.getElementById("step").onclick = draw;
+    document.getElementById("stop").onclick = playOrPause;
 
-    const stopButton = document.getElementById("stop");
-    stopButton.onclick = playOrPause
+    graphContainers.selected = document.getElementById("selected-graph");
+    graphContainers.others = document.getElementById("other-graphs");
 
-    for (let i = 0; i < numOfGraphs; i++) {
+    for (let i = 0; i < configs.numOfGraphs; i++) {
         canvases[i] = document.getElementById(`graph-${i}`);
+        canvases[i].addEventListener("click", () => handleGraphSelection(i))
         ctxs[i] = canvases[i].getContext ? canvases[i].getContext("2d") : null;
 
-        // ctxs[i].canvas.width = Math.floor(window.innerWidth * .8)
-        // ctxs[i].canvas.height = Math.floor(window.innerHeight * .8)
+        if(i === 0)
+            setCanvasSize(i, graphContainers.selected.offsetWidth, graphContainers.selected.offsetWidth, .7, .7)
+        else
+            setCanvasSize(i, 200, 200, 1, 1)
 
-        console.log(ctxs[i])
-
-        // setBackgroundColor(ctxs[i], colors.bg)
-
-        fillRandomNumbersInArray(graphs[i], 30)
+        fillRandomNumbersInArray(graphs[i], 50)
     }
-
     console.log(graphs)
 
-    interval = window.setInterval(() => draw(), intervalTime)
+    configs.interval = window.setInterval(() => draw(), configs.intervalTime)
 }
 
 function draw(){
     performance.drawStart = window.performance.now()
-    for (let i = 0; i < numOfGraphs; i++) {
+    for (let i = 0; i < configs.numOfGraphs; i++) {
         setBackgroundColor(ctxs[i], colors.bg)
         drawGraph(ctxs[i], graphs[i])
     }
@@ -61,9 +58,9 @@ function draw(){
 
 function nextStep(){
     performance.stepStart = window.performance.now()
-    for (let i = 0; i < numOfGraphs; i++) {
+    for (let i = 0; i < configs.numOfGraphs; i++) {
         graphs[i].shift()
-        const next = getNextSmoothRandomInt(graphs[i].slice(-1)[0], 10)
+        const next = getNextSmoothRandomInt(graphs[i].slice(-1)[0], 50)
         graphs[i].push(next)
     }
     performance.stepStop = window.performance.now()
@@ -74,36 +71,20 @@ function nextStep(){
 }
 
 function drawGraph(ctx, values){
-    const min = clamp(Math.min(...values) - 10, 0)
-    const max = Math.max(...values) + 10
-
     const barWidth = Math.floor(ctx.canvas.width * .8 / (values.length + 1))
     const gap = Math.floor(ctx.canvas.width * .1 / (values.length + 1))
-    const barHeight = Math.floor(ctx.canvas.height / ((max) * 1.5))
-
-    // console.info(`Math.floor(${ctx.canvas.height} / (${(max - min) * 1.05}))`)
-
-    // console.table([
-    //     ["barWidth",barWidth],
-    //     ["barHeight",barHeight],
-    //     ["gap",gap],
-    //     ["Canvas Width", ctx.canvas.width],
-    //     ["Canvas Heigth", ctx.canvas.height],
-    //     ["Values", values],
-    //     ["Min", min],
-    //     ["Max", max]
-    // ])
+    const barHeight = ctx.canvas.height / (Math.max(...values) * 1.2)
 
     for (let index = 1; index < values.length; index++) {
         const color = getStatusColor(values[index], values[index - 1])
         ctx.fillStyle = color;
 
         const x = (barWidth + gap) * (index - 1) + gap
-        const y = ctx.canvas.height - (barHeight * Math.max(values[index], values[index - 1]))
+        const y = clamp(Math.floor(barHeight * Math.min(values[index], values[index - 1])), 1)
         const width = barWidth
         const diff = Math.abs(values[index] - values[index - 1])
-        const height = values[index] !== values[index - 1] ? barHeight * diff : 1
-        // console.log(`ctx.fillRect(${x}, ${y}, ${width}, ${height}); ${color}`)
+        const height = clamp(Math.floor(barHeight * diff), 1)
+
         ctx.fillRect(x, y, width, height);
     }
 }
@@ -112,7 +93,7 @@ function fillRandomNumbersInArray(array, many = 1){
     for (let index = 0; index < many; index++) {
         let random
         if(index === 0)
-            random = getRandomInt(100) + 100
+            random = getRandomInt(500) + 150
         else {
             const prev = array.slice(-1)[0]
             random = getNextSmoothRandomInt(prev, Math.floor(prev * .20))
@@ -156,25 +137,34 @@ function clamp(value, min, max = Infinity){
 }
 
 function playOrPause(){
-    isStopped = !isStopped
+    configs.isStopped = !configs.isStopped
     // stopButton.innerHTML = isStopped ? "Play":"Pause"
-    if(isStopped){
-        clearInterval(interval)
-        console.info(`Interval (${interval}) - Cleared`)
+    if(configs.isStopped){
+        clearInterval(configs.interval)
+        console.info(`Interval (${configs.interval}) - Cleared`)
     }
     else{
-        interval = window.setInterval(() => draw(), intervalTime)
+        configs.interval = window.setInterval(() => draw(), configs.intervalTime)
         console.info(`Continue`)
     }
 }
 
-// function handleIntervals(){
-//     interval = window.setTimeout(() => draw(), 1000)
-//     intervals.push(interval)
-//     console.warn(`Interval %c#${intervals.length} with Id: ${intervals.slice(-1)[0]} %c Created on step: ${step}; ${window.performance.now()}`,
-//      'background: #222; color: #bada55', 'background: #222; color: #3333aa')
-//     console.log(intervals)
-// }
+function setCanvasSize(graphIndex, baseWidth, baseHeigth, percentageWidth, percentageHeight){
+    ctxs[graphIndex].canvas.width = Math.floor(baseWidth * percentageWidth)
+    ctxs[graphIndex].canvas.height = Math.floor(baseHeigth * percentageHeight)
+}
+
+function handleGraphSelection(newSelection){
+    if(configs.selectedGraph === newSelection) return
+
+    graphContainers.selected.appendChild(canvases[newSelection])
+    graphContainers.others.appendChild(canvases[configs.selectedGraph])
+
+    setCanvasSize(newSelection, graphContainers.selected.offsetWidth, graphContainers.selected.offsetWidth, .7, .7)
+    setCanvasSize(configs.selectedGraph, 200, 200, 1, 1)
+
+    configs.selectedGraph = newSelection
+}
 
 // function transformHexcodeToRGB(hexcode){
 //     let r = "";

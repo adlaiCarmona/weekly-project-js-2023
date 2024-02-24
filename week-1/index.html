@@ -3,31 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Week 1 - Stock dummy?</title>
+    <title>Week 1 - Stock dummy</title>
     <style>
         * {
-            margin: 0;
-            padding: 0;
+            background-color: #232D3F;
         }
-        .graph-flex {
-            width: 100%;
+        #other-graphs {
             display: flex;
-            flex-flow: row wrap;
-            align-content: space-evenly;
+            gap: 1rem;
+            justify-content: space-evenly;
+            overflow: auto;
+            white-space: nowrap;
+        }
+        #selected-graph {
+            display: flex;
+            justify-content: center;
+        }
+        canvas {
+            border-radius: 5px;
+        }
+        body {
+            display: grid;
+            gap: 1rem;
+            grid-template-areas: "main sidebar";
+            grid-template-columns: minmax(0,3fr) minmax(0,1fr);
+        }
+        main > * {
+            margin: 1rem 0;
         }
       </style>
     <script src="index.js"></script>
 </head>
 <body>
-    <div class="graph-flex">
-        <canvas id="graph-0" width="150" height="150"></canvas>
-        <canvas id="graph-1" width="150" height="150"></canvas>
-        <canvas id="graph-2" width="150" height="150"></canvas>
-        <canvas id="graph-3" width="150" height="150"></canvas>
-    </div>
-    <button id="step">Step</button>
-    <button id="stop">Pause</button>
-    <button id="setup">Restart</button>
-    
+    <main>
+        <div id="other-graphs">
+            <canvas id="graph-1" width="1" height="1"></canvas>
+            <canvas id="graph-2" width="1" height="1"></canvas>
+            <canvas id="graph-3" width="1" height="1"></canvas>
+        </div>
+        <div id="selected-graph">
+            <canvas id="graph-0" width="1" height="1"></canvas>
+        </div>
+        <button id="step">Step</button>
+        <button id="stop">Pause</button>
+        <button id="setup">Restart</button>
+    </main>
+    <aside>
+        <p>hello</p>
+    </aside>
 </body>
 </html>
