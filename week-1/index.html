@@ -4,38 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Week 1 - Stock dummy</title>
-    <style>
-        * {
-            background-color: #232D3F;
-        }
-        #other-graphs {
-            display: flex;
-            gap: 1rem;
-            justify-content: space-evenly;
-            overflow: auto;
-            white-space: nowrap;
-        }
-        #selected-graph {
-            display: flex;
-            justify-content: center;
-        }
-        canvas {
-            border-radius: 5px;
-        }
-        body {
-            display: grid;
-            gap: 1rem;
-            grid-template-areas: "main sidebar";
-            grid-template-columns: minmax(0,3fr) minmax(0,1fr);
-        }
-        main > * {
-            margin: 1rem 0;
-        }
-      </style>
+    <link rel="stylesheet" href="stylesheet.css">
     <script src="index.js"></script>
 </head>
 <body>
     <main>
+        <div class="flex content-right">
+            <select name="time-range" id="time-range">
+                <option value="90">Last 90 Days</option>
+                <option value="30">Last 30 Days</option>
+                <option value="7">Last 7 Days</option>
+                <option value="1">Las 24 Hours</option>
+            </select> 
+        </div>
         <div id="other-graphs">
             <canvas id="graph-1" width="1" height="1"></canvas>
             <canvas id="graph-2" width="1" height="1"></canvas>
@@ -49,7 +30,8 @@
         <button id="setup">Restart</button>
     </main>
     <aside>
-        <p>hello</p>
+        <h2 id="aside-title">Stock Performance</h2>
+        <div id="stocks-perf"></div>
     </aside>
 </body>
 </html>

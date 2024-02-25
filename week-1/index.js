@@ -8,6 +8,7 @@ const colors = {
 
 const configs = {
     numOfGraphs: 4,
+    numOfStocks: 6,
     isStopped: false,
     selectedGraph: 0,
     interval: undefined,
@@ -19,7 +20,11 @@ const canvases = []
 const ctxs = []
 const graphs = Array.apply(null, Array(configs.numOfGraphs)).map(() => [])
 
+const stocksPerformance = []
+
 const performance = {}
+
+const charCodeA = "A".charCodeAt()
 
 function setup(){
     document.getElementById("step").onclick = draw;
@@ -28,19 +33,8 @@ function setup(){
     graphContainers.selected = document.getElementById("selected-graph");
     graphContainers.others = document.getElementById("other-graphs");
 
-    for (let i = 0; i < configs.numOfGraphs; i++) {
-        canvases[i] = document.getElementById(`graph-${i}`);
-        canvases[i].addEventListener("click", () => handleGraphSelection(i))
-        ctxs[i] = canvases[i].getContext ? canvases[i].getContext("2d") : null;
-
-        if(i === 0)
-            setCanvasSize(i, graphContainers.selected.offsetWidth, graphContainers.selected.offsetWidth, .7, .7)
-        else
-            setCanvasSize(i, 200, 200, 1, 1)
-
-        fillRandomNumbersInArray(graphs[i], 50)
-    }
-    console.log(graphs)
+    setupGraphs()
+    setupStocks()
 
     configs.interval = window.setInterval(() => draw(), configs.intervalTime)
 }
@@ -60,7 +54,7 @@ function nextStep(){
     performance.stepStart = window.performance.now()
     for (let i = 0; i < configs.numOfGraphs; i++) {
         graphs[i].shift()
-        const next = getNextSmoothRandomInt(graphs[i].slice(-1)[0], 50)
+        const next = getNextSmoothRandomInt(graphs[i].slice(-1)[0], 75)
         graphs[i].push(next)
     }
     performance.stepStop = window.performance.now()
@@ -87,6 +81,49 @@ function drawGraph(ctx, values){
 
         ctx.fillRect(x, y, width, height);
     }
+}
+
+function setupGraphs() {
+    for (let i = 0; i < configs.numOfGraphs; i++) {
+        canvases[i] = document.getElementById(`graph-${i}`);
+        canvases[i].addEventListener("click", () => handleGraphSelection(i))
+        ctxs[i] = canvases[i].getContext ? canvases[i].getContext("2d") : null;
+
+        if(i === 0)
+            setCanvasSize(i, graphContainers.selected.offsetWidth, graphContainers.selected.offsetWidth, .7, .7)
+        else
+            setCanvasSize(i, 200, 200, 1, 1)
+
+        fillRandomNumbersInArray(graphs[i], 50)
+    }
+    console.log(graphs)
+}
+
+function setupStocks() {
+    const stocksDiv = document.getElementById("stocks-perf")
+    for (let i = 0; i < configs.numOfStocks; i++) {
+        const stockName = generateStockName()
+        const stockPerf = (Math.random() * 20 - 10).toFixed(2)
+        stocksPerformance.push({name: stockName, performance: stockPerf})
+        
+        const htmlName = document.createElement('b');
+        htmlName.textContent = stockName
+        const htmlPerf = document.createElement('p');
+        htmlPerf.textContent = `${stockPerf>0? '+' + stockPerf : stockPerf}%`
+
+        const stockDiv = document.createElement('div');
+        stockDiv.appendChild(htmlName)
+        stockDiv.appendChild(htmlPerf)
+    
+        stocksDiv.appendChild(stockDiv)
+    }
+    console.log(stocksPerformance)
+}
+
+function generateStockName() {
+    const getAlphabeticCodes = () => Math.floor(Math.random() * 26 + charCodeA)
+    const charCodes = Array.apply(null, Array(4)).map(getAlphabeticCodes)
+    return String.fromCharCode(...charCodes)
 }
 
 function fillRandomNumbersInArray(array, many = 1){
