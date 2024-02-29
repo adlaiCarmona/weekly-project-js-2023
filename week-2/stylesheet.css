@@ -1,0 +1,72 @@
+* {
+    /* color: #F7F7F7;
+    background-color: #232D3F; */
+    font-family: 'CircularStd', 'Euclid', sans-serif !important;
+}
+body {
+    display: grid;
+    gap: 1rem;
+    grid-template-areas: "main sidebar";
+    grid-template-columns: minmax(0,3fr) minmax(0,1fr);
+    height: 100%;
+}
+main > * {
+    margin: 1rem 0;
+}
+aside {
+    padding: 1rem;
+    border-left: 1px solid #ffffff50;
+    text-align: center;
+}
+canvas {
+    border-radius: 3px;
+}
+select {
+    border: none;
+    border-bottom: 1px solid #a7a7a76c;
+    font: inherit;
+}
+select:focus {
+    background-color: #1d2635;
+}
+
+#other-graphs {
+    display: flex;
+    flex-flow: row wrap;
+    gap: 0;
+    margin: 0;
+}
+#selected-graph {
+    display: flex;
+    justify-content: center;
+}
+#stocks-perf {
+    display: flex;
+    flex-flow: row wrap;
+    gap: .5rem;
+    justify-content: space-evenly;
+    margin: 0;
+    padding: 1.25rem;
+}
+#stocks-perf > div {
+    display: flex;
+    flex-flow: column wrap;
+    gap: .5rem;
+    justify-content: center;
+    background-color: #00000030;
+    margin: 0;
+    padding: 1.25rem;
+    border-radius: 5px;
+}
+#stocks-perf > div > * {
+    text-transform: uppercase;
+    background-color: transparent;
+    margin: 0;
+}
+
+.flex {
+    display: flex;
+}
+.content-right {
+    justify-content: right;
+}
