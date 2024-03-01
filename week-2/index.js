@@ -11,7 +11,7 @@ const colors = {
 const configs = {
     tileWidth: 56,
     tileHeight: 56,
-    numOfStyles: 5,
+    numOfStyles: 7,
     numOfGraphs: 49,
     tilesHorizontal: 7,
     isStopped: false,
@@ -19,6 +19,8 @@ const configs = {
     maxIntervalTime: 1500
 }
 
+var inputAccent;
+var inputBackground;
 const tiles = [];
 var tilesContainer;
 const baseTiles = [];
@@ -31,6 +33,13 @@ const performance = {}
 function setup(){
     document.getElementById("step").onclick = draw;
     document.getElementById("stop").onclick = playOrPause;
+
+    inputAccent = document.getElementById("accent")
+    inputAccent.addEventListener("input", switchBaseTilesColor)
+    inputAccent.addEventListener("change", switchTilesColor)
+    inputBackground = document.getElementById("background")
+    inputBackground.addEventListener("input", switchBaseTilesColor)
+    inputBackground.addEventListener("change", switchTilesColor)
 
     tilesContainer = document.getElementById("other-graphs");
     tilesContainer.style.width = `${configs.tileWidth * configs.tilesHorizontal}px`
@@ -82,9 +91,21 @@ function playOrPause(){
     }
 }
 
-function switchTilesStyle(style){
+function switchTilesStyle(style) {
     for (const tile of tiles){
         tile.setStyle(style)
+    }
+}
+
+function switchBaseTilesColor() {
+    for (const tile of baseTiles){
+        tile.refresh()
+    }
+}
+
+function switchTilesColor() {
+    for (const tile of tiles){
+        tile.refresh()
     }
 }
 
@@ -131,7 +152,6 @@ class Tile {
         this.ctx = this.canvas.getContext ? this.canvas.getContext("2d") : null;
         this.setCanvasSize(width, height)
 
-        this.setBackgroundColor(colors.bg)
         this.drawStyle()
     }
 
@@ -171,12 +191,18 @@ class Tile {
         this.ctx.restore();
     }
 
+    refresh() {
+        this.drawStyle()
+    }
+
     setStyle(style) {
         this.style = style;
         this.cloneCanvas(baseTilesCanvas[style])
     }
 
     drawStyle() {
+        this.setBackgroundColor(inputBackground.value)
+
         switch (this.style) {
             case 1:
                 this.drawStyle1()
@@ -190,56 +216,99 @@ class Tile {
             case 4:
                 this.drawStyle4()
                 break;
+            case 5:
+                this.drawStyle5()
+                break;
+            case 6:
+                this.drawStyle6()
+                break;
             default:
                 this.drawStyle0()
                 break;
         }
     }
 
-    drawStyle4() {
-        this.ctx.strokeStyle = colors.green;
+    drawStyle6() {
+        this.ctx.fillStyle = this.ctx.strokeStyle = inputAccent.value;
         this.ctx.lineWidth = 15;
         
         this.ctx.beginPath();
-        this.ctx.moveTo(0, -(this.height >> 1));
-        this.ctx.lineTo((this.width >> 1)*3, this.height);
+        this.ctx.arc(this.width >> 1, 0, this.width >> 3, 0, Math.PI);
+        this.ctx.fill();
+
+        this.ctx.beginPath();
+        this.ctx.arc(this.width >> 1, this.height, this.width >> 3, Math.PI, 0);
+        this.ctx.fill();
+    
+        this.ctx.beginPath();
+        this.ctx.moveTo(0, this.height >> 1);
+        this.ctx.lineTo(this.width, this.height >> 1);
+        this.ctx.stroke();
+    }
+
+    drawStyle5() {
+        this.ctx.fillStyle = this.ctx.strokeStyle = inputAccent.value;
+        this.ctx.lineWidth = 15;
+        
+        this.ctx.beginPath();
+        this.ctx.arc(this.width >> 1, 0, this.width >> 3, 0, Math.PI);
+        this.ctx.fill();
+
+        this.ctx.beginPath();
+        this.ctx.arc(this.width, this.height >> 1, this.width >> 3, 0, Math.PI * 2);
+        this.ctx.fill();
+    
+        this.ctx.beginPath();
+        this.ctx.arc(0, this.height, (this.width >> 1), 0, 2 * Math.PI);
+        this.ctx.stroke();
+    }
+
+    drawStyle4() {
+        this.ctx.strokeStyle = inputAccent.value;
+        this.ctx.lineWidth = 15;
+        
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.width >> 1, 0);
+        this.ctx.lineTo(this.width >> 1, this.height);
         this.ctx.stroke();
     
         this.ctx.beginPath();
         this.ctx.arc(0, this.height, this.width >> 1, 0, Math.PI, true);
         this.ctx.stroke();
+
+        this.ctx.beginPath();
+        this.ctx.arc(this.width, this.height, this.width >> 1, 0, Math.PI, true);
+        this.ctx.stroke();
     }
 
     drawStyle3() {
-        this.ctx.fillStyle = colors.green;
-
-        this.ctx.fillRect(this.width >> 1, 0, this.width, this.height >> 1)
-
-        this.ctx.fillStyle = colors.bg;
-
-        this.ctx.fillRect((this.width >> 2)*3, 0, this.width, this.height >> 2)
-
-        this.ctx.strokeStyle = colors.green;
+        this.ctx.strokeStyle = inputAccent.value;
         this.ctx.lineWidth = 15;
-    
+
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.width >> 1, 0);
+        this.ctx.lineTo(this.width >> 1, this.height >> 1);
+        this.ctx.lineTo(this.width, this.height >> 1);
+        this.ctx.stroke();
+
         this.ctx.beginPath();
         this.ctx.arc(0, this.height, this.width >> 1, 0, Math.PI, true);
         this.ctx.stroke();
     }
 
     drawStyle2() {
-        this.ctx.fillStyle = colors.green;
+        this.ctx.fillStyle = inputAccent.value;
 
         this.ctx.fillRect(0, 0, this.width >> 1, this.height >> 1)
         this.ctx.fillRect(this.width >> 1, this.height >> 1, this.width, this.height)
 
-        this.ctx.fillStyle = colors.bg;
+        this.ctx.fillStyle = inputBackground.value;
         this.ctx.fillRect(0, 0, this.width >> 2, this.height >> 2)
         this.ctx.fillRect((this.width >> 2)*3, (this.height >> 2)*3, this.width, this.height)
     }
 
     drawStyle1() {
-        this.ctx.strokeStyle = colors.green;
+        this.ctx.strokeStyle = inputAccent.value;
         this.ctx.lineWidth = 15;
         
         this.ctx.beginPath();
@@ -252,7 +321,7 @@ class Tile {
     }
 
     drawStyle0() {
-        this.ctx.fillStyle = colors.green;
+        this.ctx.fillStyle = inputAccent.value;
         
         this.ctx.beginPath();
         this.ctx.arc(this.width >> 1, 0, this.width >> 3, 0, Math.PI);
@@ -260,7 +329,7 @@ class Tile {
     
         this.ctx.fillRect(0, (this.height>>3)*3, this.width, (this.height>>3)*6);
     
-        this.ctx.fillStyle = colors.bg;
+        this.ctx.fillStyle = inputBackground.value;
     
         this.ctx.beginPath();
         this.ctx.arc(this.width, this.height, (this.width >> 3) * 3, 0, 2 * Math.PI, true);

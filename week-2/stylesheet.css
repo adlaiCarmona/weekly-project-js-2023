@@ -19,7 +19,7 @@ aside {
     text-align: center;
 }
 canvas {
-    border-radius: 3px;
+    /* border-radius: 3px; */
 }
 select {
     border: none;
